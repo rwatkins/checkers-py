@@ -2,6 +2,8 @@ import itertools
 import sys
 
 
+RED = 'r'
+BLACK = 'b'
 EMPTY = ''
 
 
@@ -43,11 +45,11 @@ def print_board(board):
 
 
 def red_score(board):
-    return sum(1 for s in board if s == 'r')
+    return sum(1 for s in board if s == RED)
 
 
 def black_score(board):
-    return sum(1 for s in board if s == 'b')
+    return sum(1 for s in board if s == BLACK)
 
 
 def all_black_moves():
@@ -79,6 +81,7 @@ def all_king_moves():
     """
     for m in all_black_moves():
         yield m
+
     for m in all_red_moves():
         yield m
 
@@ -91,7 +94,7 @@ def possible_black_moves(board, position):
         for i, j in black_captures_from_pos(board, position):
             yield i, j
     for i, j in all_black_moves():
-        if board[i - 1] == 'b' and board[j - 1] == EMPTY:
+        if board[i-1] == BLACK and board[j-1] == EMPTY:
             yield i, j
 
 
@@ -103,7 +106,7 @@ def possible_red_moves(board, position):
         for i, j in red_captures_from_pos(board, position):
             yield i, j
     for i, j in all_red_moves():
-        if board[i - 1] == 'r' and board[j - 1] == EMPTY:
+        if board[i-1] == RED and board[j-1] == EMPTY:
             yield i, j
 
 
@@ -123,20 +126,20 @@ def red_captures_from_pos(board, pos):
     idx = pos - 1
     if position_in_odd_row(pos):
         # -4 then -5
-        if (board[idx - 4].lower() == 'b' and board[idx - 9] == EMPTY and
+        if (board[idx - 4] == BLACK and board[idx - 9] == EMPTY and
                 is_red_move(pos - 4, pos - 9)):
             yield pos, pos - 9
         # -3 and -7
-        if (board[idx - 3].lower() == 'b' and board[idx - 7] == EMPTY and
+        if (board[idx - 3] == BLACK and board[idx - 7] == EMPTY and
                 is_red_move(pos - 3, pos - 7)):
             yield pos, pos - 7
     else:
         # -5 and -9
-        if (board[idx - 5].lower() == 'b' and board[idx - 9] == EMPTY and
+        if (board[idx - 5] == BLACK and board[idx - 9] == EMPTY and
                 is_red_move(pos - 5, pos - 9)):
             yield pos, pos - 9
         # -4 and -7
-        if (board[idx - 4].lower() == 'b' and board[idx - 7] == EMPTY and
+        if (board[idx - 4] == BLACK and board[idx - 7] == EMPTY and
                 is_red_move(pos - 4, pos - 7)):
             yield pos, pos - 7
 
@@ -149,20 +152,20 @@ def black_captures_from_pos(board, pos):
     idx = pos - 1
     if position_in_odd_row(pos):
         # +4 then +7
-        if (board[idx + 4].lower() == 'r' and board[idx + 7] == EMPTY and
+        if (board[idx + 4] == RED and board[idx + 7] == EMPTY and
                 is_black_move(pos + 4, pos + 7)):
             yield pos, pos + 7
         # +5 then +9
-        if (board[idx + 5].lower() == 'r' and board[idx + 9] == EMPTY and
+        if (board[idx + 5] == RED and board[idx + 9] == EMPTY and
                 is_black_move(pos + 5, pos + 9)):
             yield pos, pos + 9
     else:
         # +3 then +7
-        if (board[idx + 3].lower() == 'r' and board[idx + 7] == EMPTY and
+        if (board[idx + 3] == RED and board[idx + 7] == EMPTY and
                 is_black_move(pos + 3, pos + 7)):
             yield pos, pos + 7
         # +4 then +9
-        if (board[idx + 4].lower() == 'r' and board[idx + 9] == EMPTY and
+        if (board[idx + 4] == RED and board[idx + 9] == EMPTY and
                 is_black_move(pos + 4, pos + 9)):
             yield pos, pos + 9
 
@@ -176,8 +179,8 @@ def position_in_odd_row(position):
 
 def turns():
     while True:
-        yield 'r'
-        yield 'b'
+        yield RED
+        yield BLACK
 
 
 def is_jump(move):
@@ -245,14 +248,14 @@ def next_board(board, move):
 # TESTS
 
 def test_red_captures():
-    board = ['b', 'b', 'b', 'b',
-             'b', 'b', 'b', 'b',
-             EMPTY, EMPTY, 'b', EMPTY,
+    board = [BLACK, BLACK, BLACK, BLACK,
+             BLACK, BLACK, BLACK, BLACK,
+             EMPTY, EMPTY, BLACK, EMPTY,
              EMPTY, EMPTY, EMPTY, EMPTY,
-             'b', 'b', EMPTY, 'b',
-             'r', 'r', 'r', 'r',
-             'r', 'r', 'r', 'r',
-             'r', 'r', 'r', 'r']
+             BLACK, BLACK, EMPTY, BLACK,
+             RED, RED, RED, RED,
+             RED, RED, RED, RED,
+             RED, RED, RED, RED]
 
     assert len(board) == 32, "Board isn't the right size"
     assert set(red_captures_from_pos(board, 21)) == set([(21, 14)])
@@ -261,22 +264,22 @@ def test_red_captures():
 
 
 def test_red_capture_21_14():
-    board = ['b', 'b', 'b', 'b',
-             'b', 'b', EMPTY, 'b',
-             EMPTY, 'b', 'b', 'b',
-             'b', EMPTY, EMPTY, EMPTY,
-             'b', EMPTY, EMPTY, EMPTY,
-             'r', 'r', 'r', 'r',
-             EMPTY, 'r', 'r', 'r',
-             'r', 'r', 'r', 'r']
-    expected = ['b', 'b', 'b', 'b',
-                'b', 'b', EMPTY, 'b',
-                EMPTY, 'b', 'b', 'b',
-                'b', 'r', EMPTY, EMPTY,
+    board = [BLACK, BLACK, BLACK, BLACK,
+             BLACK, BLACK, EMPTY, BLACK,
+             EMPTY, BLACK, BLACK, BLACK,
+             BLACK, EMPTY, EMPTY, EMPTY,
+             BLACK, EMPTY, EMPTY, EMPTY,
+             RED, RED, RED, RED,
+             EMPTY, RED, RED, RED,
+             RED, RED, RED, RED]
+    expected = [BLACK, BLACK, BLACK, BLACK,
+                BLACK, BLACK, EMPTY, BLACK,
+                EMPTY, BLACK, BLACK, BLACK,
+                BLACK, RED, EMPTY, EMPTY,
                 EMPTY, EMPTY, EMPTY, EMPTY,
-                EMPTY, 'r', 'r', 'r',
-                EMPTY, 'r', 'r', 'r',
-                'r', 'r', 'r', 'r']
+                EMPTY, RED, RED, RED,
+                EMPTY, RED, RED, RED,
+                RED, RED, RED, RED]
     move = (21, 14)
     actual = next_board(board, move)
 
@@ -286,14 +289,14 @@ def test_red_capture_21_14():
 
 
 def test_black_captures():
-    board = ['b', 'b', 'b', 'b',
-             'b', 'b', 'b', 'b',
-             'b', 'b', EMPTY, 'b',
-             'r', EMPTY, 'b', 'r',
-             EMPTY, 'r', EMPTY, EMPTY,
-             EMPTY, EMPTY, EMPTY, 'r',
-             'r', 'r', 'r', 'r',
-             'r', 'r', 'r', 'r']
+    board = [BLACK, BLACK, BLACK, BLACK,
+             BLACK, BLACK, BLACK, BLACK,
+             BLACK, BLACK, EMPTY, BLACK,
+             RED, EMPTY, BLACK, RED,
+             EMPTY, RED, EMPTY, EMPTY,
+             EMPTY, EMPTY, EMPTY, RED,
+             RED, RED, RED, RED,
+             RED, RED, RED, RED]
 
     assert len(board) == 32, "Board isn't the right size"
     assert set(black_captures_from_pos(board, 9)) == set()
@@ -312,11 +315,11 @@ def test_odd_row_detector():
 def test_turn_generator():
     t = turns()
     first_five_turns = [t.next(), t.next(), t.next(), t.next(), t.next()]
-    assert first_five_turns == ['r', 'b', 'r', 'b', 'r']
+    assert first_five_turns == [RED, BLACK, RED, BLACK, RED]
 
 
 def test_possible_move_generators():
-    board = ['b'] * 12 + [EMPTY] * 8 + ['r'] * 12
+    board = [BLACK] * 12 + [EMPTY] * 8 + [RED] * 12
     assert len(board) == 32, "Board isn't the right size"
 
     assert set(possible_black_moves(board, None)) == set(
@@ -367,22 +370,22 @@ def test_all_black_moves():
 
 
 def test_next_board_A():
-    board = ['b', 'b', 'b', 'b',
-             'b', 'b', 'b', 'b',
-             EMPTY, 'b', 'b', 'b',
-             EMPTY, 'b', EMPTY, EMPTY,
-             EMPTY, 'r', EMPTY, EMPTY,
-             'r', 'r', EMPTY, 'r',
-             'r', 'r', 'r', 'r',
-             'r', 'r', 'r', 'r']
-    expected = ['b', 'b', 'b', 'b',
-                'b', 'b', 'b', 'b',
-                'r', 'b', 'b', 'b',
+    board = [BLACK, BLACK, BLACK, BLACK,
+             BLACK, BLACK, BLACK, BLACK,
+             EMPTY, BLACK, BLACK, BLACK,
+             EMPTY, BLACK, EMPTY, EMPTY,
+             EMPTY, RED, EMPTY, EMPTY,
+             RED, RED, EMPTY, RED,
+             RED, RED, RED, RED,
+             RED, RED, RED, RED]
+    expected = [BLACK, BLACK, BLACK, BLACK,
+                BLACK, BLACK, BLACK, BLACK,
+                RED, BLACK, BLACK, BLACK,
                 EMPTY, EMPTY, EMPTY, EMPTY,
                 EMPTY, EMPTY, EMPTY, EMPTY,
-                'r', 'r', EMPTY, 'r',
-                'r', 'r', 'r', 'r',
-                'r', 'r', 'r', 'r']
+                RED, RED, EMPTY, RED,
+                RED, RED, RED, RED,
+                RED, RED, RED, RED]
     result = next_board(board, (18, 9))
     for i, (a, b) in enumerate(itertools.izip(expected, result)):
         if a != b:
@@ -392,22 +395,22 @@ def test_next_board_A():
 
 
 def test_next_board_B():
-    board = ['b', 'b', 'b', 'b',
-             'b', 'b', 'b', 'b',
-             EMPTY, 'b', 'b', 'b',
-             EMPTY, 'b', EMPTY, EMPTY,
-             EMPTY, 'r', EMPTY, EMPTY,
-             'r', 'r', EMPTY, 'r',
-             'r', 'r', 'r', 'r',
-             'r', 'r', 'r', 'r']
-    expected = ['b', 'b', 'b', 'b',
-                'b', 'b', 'b', 'b',
-                EMPTY, 'b', 'b', 'b',
+    board = [BLACK, BLACK, BLACK, BLACK,
+             BLACK, BLACK, BLACK, BLACK,
+             EMPTY, BLACK, BLACK, BLACK,
+             EMPTY, BLACK, EMPTY, EMPTY,
+             EMPTY, RED, EMPTY, EMPTY,
+             RED, RED, EMPTY, RED,
+             RED, RED, RED, RED,
+             RED, RED, RED, RED]
+    expected = [BLACK, BLACK, BLACK, BLACK,
+                BLACK, BLACK, BLACK, BLACK,
+                EMPTY, BLACK, BLACK, BLACK,
                 EMPTY, EMPTY, EMPTY, EMPTY,
                 EMPTY, EMPTY, EMPTY, EMPTY,
-                'r', 'r', 'b', 'r',
-                'r', 'r', 'r', 'r',
-                'r', 'r', 'r', 'r']
+                RED, RED, BLACK, RED,
+                RED, RED, RED, RED,
+                RED, RED, RED, RED]
     result = next_board(board, (14, 23))
     for i, (a, b) in enumerate(itertools.izip(expected, result)):
         if a != b:
@@ -431,25 +434,29 @@ def test():
 
 
 def get_turn_fns(turn):
-    if turn == 'r':
+    if turn == RED:
         return possible_red_moves, all_red_moves
-    elif turn == 'b':
+    elif turn == BLACK:
         return possible_black_moves, all_black_moves
     else:
         raise Exception('What kind of turn is this? {}'.format(repr(turn)))
 
 
 def get_prompt(turn):
-    if turn == 'r':
+    if turn == RED:
         return 'Red move: '
-    elif turn == 'b':
+    elif turn == BLACK:
         return 'Black move: '
     else:
         raise Exception('What kind of turn is this? {}'.format(repr(turn)))
 
 
+def new_board():
+    return [BLACK] * 12 + [EMPTY] * 8 + [RED] * 12
+
+
 def main():
-    board = ['b'] * 12 + [EMPTY] * 8 + ['r'] * 12
+    board = new_board()
     try:
         for t in turns():
             while True:
