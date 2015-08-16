@@ -91,7 +91,7 @@ def possible_black_moves(board, position):
         for i, j in black_captures_from_pos(board, position):
             yield i, j
     for i, j in all_black_moves():
-        if board[i - 1] == 'b' and not board[j - 1]:
+        if board[i - 1] == 'b' and board[j - 1] == EMPTY:
             yield i, j
 
 
@@ -103,7 +103,7 @@ def possible_red_moves(board, position):
         for i, j in red_captures_from_pos(board, position):
             yield i, j
     for i, j in all_red_moves():
-        if board[i - 1] == 'r' and not board[j - 1]:
+        if board[i - 1] == 'r' and board[j - 1] == EMPTY:
             yield i, j
 
 
