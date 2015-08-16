@@ -20,7 +20,7 @@ def print_board(board):
         25     [r]   [r]   [r]   [r]
         29  [r]   [r]   [r]   [r]
     """
-    blank = '   '
+    blank = ' ' * 3
     odd_row = False
     r_score = red_score(board)
     b_score = black_score(board)
@@ -181,29 +181,65 @@ def turns():
         turn = 'b' if turn == 'r' else 'r'
 
 
+def is_jump(move):
+    return distance(move) > 5
+
+
+def distance(move):
+    from_, to = move
+    return abs(to - from_)
+
+
+def direction(move):
+    """
+    Returns -1 if moving backward or 1 if moving forward
+    """
+    from_, to = move
+    return -1 if from_ > to else 1
+
+
+def is_backward(move):
+    return direction(move) == -1
+
+
+def is_forward(move):
+    return not is_backward(move)
+
+
+def jumped_space_relative(move):
+    assert is_jump(move)
+
+    jump = distance(move) // 2
+    odd_row = position_in_odd_row(move[0])
+    even_row = not odd_row
+    backward = is_backward(move)
+    forward = not backward
+
+    if odd_row and forward or even_row and backward:
+        jump += 1
+
+    return jump * direction(move)
+
+
 def next_board(board, move):
     """
     Returns a new board from the old board with the given move applied
     to it
     """
     from_, to = move
-    distance = abs(to - from_)
     jump = None
-    if distance > 5:  # jump move
-        if distance == 7 or distance == 9:
-            # Jumped space is half the distance to the 'to' space
-            jump = distance // 2
-        else:
-            raise Exception('How can distance not be 7 or 9?')
-        if position_in_odd_row(from_) and from_ < to:
-            # then jump is +4 or +5
-            jump += 1
-        if from_ > to:
-            jump *= -1
+
+    if is_jump(move):  # jump move
+        assert distance(move) in (7, 9), 'How can jump distance not be 7 or 9?'
+        jump = jumped_space_relative(move)
+
     nextb = board[:]
-    nextb[to - 1], nextb[from_ - 1] = nextb[from_ - 1], nextb[to - 1]
+    nextb[to-1], nextb[from_-1] = nextb[from_-1], EMPTY
+
     if jump:
-        nextb[from_ - 1 + jump] = EMPTY
+        set_to_empty = from_ - 1 + jump
+        nextb[set_to_empty] = EMPTY
+
     return nextb
 
 
@@ -223,6 +259,31 @@ def test_red_captures():
     assert set(red_captures_from_pos(board, 21)) == set([(21, 14)])
     assert set(red_captures_from_pos(board, 22)) == set([(22, 13), (22, 15)])
     assert set(red_captures_from_pos(board, 24)) == set()
+
+
+def test_red_capture_21_14():
+    board = ['b', 'b', 'b', 'b',
+             'b', 'b', EMPTY, 'b',
+             EMPTY, 'b', 'b', 'b',
+             'b', EMPTY, EMPTY, EMPTY,
+             'b', EMPTY, EMPTY, EMPTY,
+             'r', 'r', 'r', 'r',
+             EMPTY, 'r', 'r', 'r',
+             'r', 'r', 'r', 'r']
+    expected = ['b', 'b', 'b', 'b',
+                'b', 'b', EMPTY, 'b',
+                EMPTY, 'b', 'b', 'b',
+                'b', 'r', EMPTY, EMPTY,
+                EMPTY, EMPTY, EMPTY, EMPTY,
+                EMPTY, 'r', 'r', 'r',
+                EMPTY, 'r', 'r', 'r',
+                'r', 'r', 'r', 'r']
+    move = (21, 14)
+    actual = next_board(board, move)
+
+    assert len(board) == 32, "Board isn't the right size"
+    assert len(expected) == 32, "Board isn't the right size"
+    assert expected == actual
 
 
 def test_black_captures():
@@ -364,6 +425,7 @@ def test():
     test_turn_generator()
     test_odd_row_detector()
     test_red_captures()
+    test_red_capture_21_14()
     test_black_captures()
     test_next_board_A()
     test_next_board_B()
