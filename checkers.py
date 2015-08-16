@@ -458,14 +458,19 @@ def main():
                 print('')
                 prompt = get_prompt(t)
                 move_str = raw_input(prompt)
-                move_split = move_str.split('-')
+                move_split = move_str.split()
                 if len(move_split) != 2:
-                    print('Invalid move format (format = FROM-TO)')
+                    print('Invalid move format (format = FROM TO)')
                     print('')
                     continue
 
                 possible_moves, all_moves_ = get_turn_fns(t)
-                from_, to = int(move_split[0]), int(move_split[1])
+                try:
+                    from_, to = int(move_split[0]), int(move_split[1])
+                except ValueError:
+                    print('Invalid move \"{}\"'.format(move_str))
+                    continue
+
                 if (from_, to) in possible_moves(board, from_):
                     board = next_board(board, (from_, to))
                     break
