@@ -175,10 +175,9 @@ def position_in_odd_row(position):
 
 
 def turns():
-    turn = 'r'
     while True:
-        yield turn
-        turn = 'b' if turn == 'r' else 'r'
+        yield 'r'
+        yield 'b'
 
 
 def is_jump(move):
